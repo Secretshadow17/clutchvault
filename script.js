@@ -10,11 +10,11 @@ const CONFIG = {
 
 // Tier rewards. Edit names, points and rewards here. Set pts to null to hide points.
 const RANKS = [
-  { name: "Crown",         pts: null,  reward: "UC Reward",        slots: "Limited slots per season", level: 1 },
-  { name: "Ace",           pts: null,  reward: "UC Reward+",       slots: "Limited slots per season", level: 2 },
-  { name: "Ace Master",    pts: null,  reward: "Bigger UC Reward", slots: "Limited slots per season", level: 3 },
-  { name: "Ace Dominator", pts: 6000,  reward: "Cash / UC Reward", slots: "Limited slots per season", level: 4 },
-  { name: "Conqueror",     pts: null,  reward: "Top Reward",       slots: "Very limited slots",       level: 5, top: true },
+  { name: "Ace",         pts: null,  reward: "60uc",        slots: "Limited slots per season", level: 1 },
+  { name: "Ace Master",           pts: null,  reward: "200uc",       slots: "Limited slots per season", level: 2 },
+  { name: "Ace Dominator",    pts: 5200,  reward: "360uc", slots: "Limited slots per season", level: 3 },
+  { name: "Ace Dominator", pts: 5500,  reward: "1000 Cash", slots: "Limited slots per season", level: 4 },
+  { name: "Conqueror",     pts: null,  reward: "2000 Cash",       slots: "Very limited slots",       level: 5, top: true },
 ];
 
 // Sample tournaments. Replace with real ones as you create them.
