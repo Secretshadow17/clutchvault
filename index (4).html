@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ClutchVault | Push Rank. Win the Vault.</title>
+  <meta name="description" content="ClutchVault is a free-to-enter esports platform for mobile battle royale players. Claim tier rewards, play squad tournaments and enter 1v1 arenas." />
+  <meta name="theme-color" content="#0A0B0F" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Reusable logo mark -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="cv-mark" viewBox="0 0 48 48">
+      <path d="M24 2 44 13v22L24 46 4 35V13z" fill="none" stroke="currentColor" stroke-width="3"/>
+      <path d="M24 12 35 18v12L24 36 13 30V18z" fill="currentColor" opacity=".18"/>
+      <circle cx="24" cy="24" r="5" fill="none" stroke="currentColor" stroke-width="3"/>
+      <path d="M24 10v9M24 29v9M10 24h9M29 24h9" stroke="currentColor" stroke-width="2.5"/>
+    </symbol>
+  </svg>
+
+  <!-- NAV -->
+  <header class="nav" id="top">
+    <div class="wrap nav__inner">
+      <a href="#top" class="brand" aria-label="ClutchVault home">
+        <svg class="brand__mark"><use href="#cv-mark"/></svg>
+        <span class="brand__text">CLUTCH<b>VAULT</b></span>
+      </a>
+      <nav class="nav__links" id="navLinks" aria-label="Main">
+        <a href="#rewards">Tier Rewards</a>
+        <a href="#tournaments">Tournaments</a>
+        <a href="#arena">1v1 Arena</a>
+        <a href="#leaderboard">Leaderboard</a>
+        <a href="#sponsors">Sponsors</a>
+      </nav>
+      <a href="#join" class="btn btn--accent btn--sm nav__cta">Join Free</a>
+      <button class="nav__toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero__bg" aria-hidden="true"></div>
+      <div class="wrap hero__inner">
+        <div class="hero__copy reveal">
+          <p class="eyebrow"><i></i> SEASON 1 &nbsp;•&nbsp; FREE TO ENTER</p>
+          <h1>PUSH RANK.<br /><span>WIN THE VAULT.</span></h1>
+          <p class="hero__sub">Hit your in-game tier, claim sponsor-funded rewards, and fight for the top spot in squad tournaments and 1v1 arenas. No entry fees. Ever.</p>
+          <div class="hero__actions">
+            <a href="#rewards" class="btn btn--accent">Claim Tier Reward <span class="arrow">›</span></a>
+            <a href="#tournaments" class="btn btn--ghost">View Tournaments</a>
+          </div>
+          <div class="countdown" id="countdown" aria-live="polite">
+            <p class="countdown__label">NEXT TOURNAMENT STARTS IN</p>
+            <div class="countdown__boxes">
+              <div><b id="cd-d">00</b><span>DAYS</span></div>
+              <div><b id="cd-h">00</b><span>HRS</span></div>
+              <div><b id="cd-m">00</b><span>MIN</span></div>
+              <div><b id="cd-s">00</b><span>SEC</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero__art reveal" aria-hidden="true">
+          <svg viewBox="0 0 500 500" class="vault">
+            <defs>
+              <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0" stop-color="#FF4D2E" stop-opacity=".55"/>
+                <stop offset="1" stop-color="#FF4D2E" stop-opacity="0"/>
+              </radialGradient>
+              <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#FFD87A"/><stop offset="1" stop-color="#E08A1E"/>
+              </linearGradient>
+            </defs>
+            <circle cx="250" cy="250" r="240" fill="url(#glow)"/>
+            <g class="ring ring--a"><polygon points="250,20 449,135 449,365 250,480 51,365 51,135" fill="none" stroke="#FF4D2E" stroke-width="3"/></g>
+            <g class="ring ring--b"><polygon points="250,60 414,155 414,345 250,440 86,345 86,155" fill="none" stroke="#F2EDE4" stroke-opacity=".35" stroke-width="2" stroke-dasharray="14 10"/></g>
+            <polygon points="250,100 380,175 380,325 250,400 120,325 120,175" fill="#14161C" stroke="#FF4D2E" stroke-width="4"/>
+            <g class="ring ring--c">
+              <circle cx="250" cy="250" r="78" fill="#0A0B0F" stroke="url(#gold)" stroke-width="6"/>
+              <path d="M250 150v52M250 298v52M150 250h52M298 250h52" stroke="url(#gold)" stroke-width="9" stroke-linecap="round"/>
+              <path d="M179 179l36 36M285 285l36 36M321 179l-36 36M215 285l-36 36" stroke="#FF4D2E" stroke-width="5" stroke-linecap="round"/>
+            </g>
+            <circle cx="250" cy="250" r="26" fill="url(#gold)"/>
+            <circle cx="250" cy="250" r="10" fill="#0A0B0F"/>
+          </svg>
+          <div class="chip chip--a">UC REWARDS</div>
+          <div class="chip chip--b">SQUAD CUPS</div>
+          <div class="chip chip--c">1v1 ARENA</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS STRIP -->
+    <section class="strip">
+      <div class="wrap strip__inner">
+        <div><b>₹0</b><span>Entry fee, always</span></div>
+        <div><b>3</b><span>Ways to win</span></div>
+        <div><b>100%</b><span>Sponsor-funded rewards</span></div>
+        <div><b>S1</b><span>Season 1 is live</span></div>
+      </div>
+    </section>
+
+    <!-- 4 FEATURE CARDS -->
+    <section class="section">
+      <div class="wrap">
+        <div class="cards4">
+          <article class="card cut reveal">
+            <svg viewBox="0 0 48 48" class="card__icon"><path d="M8 34 24 10l16 24H8zM14 40h20" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg>
+            <h3>PUSH RANK</h3>
+            <p>Reach a reward tier in-game and submit proof of your rank.</p>
+            <a href="#rewards">Learn more ›</a>
+          </article>
+          <article class="card cut reveal">
+            <svg viewBox="0 0 48 48" class="card__icon"><circle cx="24" cy="14" r="6" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="10" cy="22" r="4" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="38" cy="22" r="4" fill="none" stroke="currentColor" stroke-width="3"/><path d="M12 42v-6a12 12 0 0 1 24 0v6" fill="none" stroke="currentColor" stroke-width="3"/></svg>
+            <h3>SQUAD UP</h3>
+            <p>Join multi-match tournaments. Points add up across every game.</p>
+            <a href="#tournaments">Learn more ›</a>
+          </article>
+          <article class="card cut reveal">
+            <svg viewBox="0 0 48 48" class="card__icon"><path d="M10 38 38 10M10 10l28 28" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="24" cy="24" r="5" fill="none" stroke="currentColor" stroke-width="3"/></svg>
+            <h3>DUEL 1v1</h3>
+            <p>Knockout brackets. Win your match, advance, take the crown.</p>
+            <a href="#arena">Learn more ›</a>
+          </article>
+          <article class="card cut reveal">
+            <svg viewBox="0 0 48 48" class="card__icon"><rect x="8" y="14" width="32" height="24" rx="2" fill="none" stroke="currentColor" stroke-width="3"/><path d="M8 22h32M24 22v8" stroke="currentColor" stroke-width="3"/><path d="M16 14v-4h16v4" fill="none" stroke="currentColor" stroke-width="3"/></svg>
+            <h3>OPEN THE VAULT</h3>
+            <p>Verified winners receive UC or cash from our sponsor fund.</p>
+            <a href="#how">Learn more ›</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIER REWARDS (light section) -->
+    <section class="section section--light slash-top" id="rewards">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <h2>CHOOSE YOUR <span>TIER</span></h2>
+          <p>Hit the points, upload proof, claim your reward. Rewards grow with every tier. Each tier reward can be claimed once per season and is limited by our sponsor fund.</p>
+        </div>
+        <div class="ranks" id="ranks"></div>
+        <p class="note note--dark">Reward amounts are set by the admin and may change each season. Slots are limited per tier.</p>
+      </div>
+    </section>
+
+    <!-- TOURNAMENTS -->
+    <section class="section" id="tournaments">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <h2>LIVE &amp; UPCOMING <span>TOURNAMENTS</span></h2>
+          <p>Squad cups run over several matches. Placement points plus kills decide who climbs the table. Top 3 teams win.</p>
+        </div>
+        <div class="tour" id="tourList"></div>
+
+        <div class="points reveal">
+          <h3>HOW POINTS WORK</h3>
+          <div class="points__grid">
+            <div><b>1st</b>10</div><div><b>2nd</b>6</div><div><b>3rd</b>5</div><div><b>4th</b>4</div>
+            <div><b>5th</b>3</div><div><b>6th</b>2</div><div><b>7–8th</b>1</div><div><b>Per kill</b>+1</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1v1 ARENA -->
+    <section class="section section--panel slash-both" id="arena">
+      <div class="wrap arena">
+        <div class="arena__copy reveal">
+          <h2>1v1 <span>ARENA</span></h2>
+          <p>Eight players. One bracket. Both players submit the result, and disputes go straight to an admin. Win your matches and take the crown.</p>
+          <ul class="ticks">
+            <li>Single-elimination bracket</li>
+            <li>Best-of-1 early rounds, best-of-3 final</li>
+            <li>10-minute no-show rule</li>
+            <li>Result proof from both players</li>
+          </ul>
+          <a href="#join" class="btn btn--accent">Enter the Arena <span class="arrow">›</span></a>
+        </div>
+        <div class="bracket reveal" aria-label="Sample 1v1 bracket">
+          <div class="bracket__col">
+            <div class="m"><span>PLAYER 1</span><span>PLAYER 2</span></div>
+            <div class="m"><span>PLAYER 3</span><span>PLAYER 4</span></div>
+            <div class="m"><span>PLAYER 5</span><span>PLAYER 6</span></div>
+            <div class="m"><span>PLAYER 7</span><span>PLAYER 8</span></div>
+          </div>
+          <div class="bracket__col bracket__col--2">
+            <div class="m"><span>WINNER A</span><span>WINNER B</span></div>
+            <div class="m"><span>WINNER C</span><span>WINNER D</span></div>
+          </div>
+          <div class="bracket__col bracket__col--3">
+            <div class="m m--final"><span>FINALIST 1</span><span>FINALIST 2</span></div>
+            <div class="crown">CHAMPION</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LEADERBOARD -->
+    <section class="section" id="leaderboard">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <h2>TOP <span>LEADERBOARD</span></h2>
+          <p>Sample data shown. Live standings appear here once tournaments begin.</p>
+        </div>
+        <div class="table reveal" id="board" role="table" aria-label="Leaderboard"></div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section section--light slash-top" id="how">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <h2>FROM RANK TO <span>REWARD</span></h2>
+        </div>
+        <ol class="steps">
+          <li class="reveal"><b>01</b><h4>Create your profile</h4><p>Sign up and add your in-game name and character ID.</p></li>
+          <li class="reveal"><b>02</b><h4>Play and push</h4><p>Reach a reward tier or register for a tournament.</p></li>
+          <li class="reveal"><b>03</b><h4>Submit proof</h4><p>Upload a screenshot. Admins verify every claim.</p></li>
+          <li class="reveal"><b>04</b><h4>Get paid</h4><p>Complete a quick KYC and receive your reward.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- SPONSORS -->
+    <section class="section" id="sponsors">
+      <div class="wrap">
+        <div class="section__head reveal">
+          <h2>POWERED BY OUR <span>SPONSORS</span></h2>
+          <p>Every reward comes from our sponsor fund. Want your brand in front of thousands of mobile gamers?</p>
+        </div>
+        <div class="sponsors reveal">
+          <div class="cut">YOUR LOGO HERE</div>
+          <div class="cut">YOUR LOGO HERE</div>
+          <div class="cut">YOUR LOGO HERE</div>
+          <div class="cut">YOUR LOGO HERE</div>
+        </div>
+        <p class="center"><a href="#join" class="btn btn--ghost">Become a Sponsor</a></p>
+      </div>
+    </section>
+
+    <!-- JOIN -->
+    <section class="join" id="join">
+      <div class="wrap join__inner">
+        <div class="join__copy">
+          <h2>STAY UP TO DATE</h2>
+          <p>Get tournament alerts, new reward drops and season news.</p>
+        </div>
+        <form class="join__form" id="joinForm" novalidate>
+          <label class="sr" for="email">Email address</label>
+          <input id="email" name="email" type="email" placeholder="Enter your email" required autocomplete="email" />
+          <button class="btn btn--accent" type="submit">Subscribe</button>
+          <p class="join__msg" id="joinMsg" role="status"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="wrap footer__inner">
+      <div class="footer__brand">
+        <a href="#top" class="brand"><svg class="brand__mark"><use href="#cv-mark"/></svg><span class="brand__text">CLUTCH<b>VAULT</b></span></a>
+        <p>A free-to-enter esports rewards platform.</p>
+      </div>
+      <div><h5>PLAY</h5><a href="#rewards">Tier Rewards</a><a href="#tournaments">Tournaments</a><a href="#arena">1v1 Arena</a></div>
+      <div><h5>COMMUNITY</h5><a href="#leaderboard">Leaderboard</a><a href="#sponsors">Sponsors</a><a href="#join">Newsletter</a></div>
+      <div><h5>LEGAL</h5><a href="#">Terms</a><a href="#">Privacy Policy</a><a href="#">Fair Play Rules</a></div>
+    </div>
+    <div class="wrap footer__legal">
+      <p>ClutchVault is an independent platform and is not affiliated with, endorsed by or sponsored by Krafton, Tencent or any game publisher. All game names and trademarks belong to their respective owners. Players under 18 need a parent or guardian's permission to claim rewards.</p>
+      <p>&copy; <span id="year">2026</span> ClutchVault. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
