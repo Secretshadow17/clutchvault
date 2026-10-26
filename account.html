@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Account | ClutchVault</title>
+  <meta name="theme-color" content="#0A0B0F" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="cv-mark" viewBox="0 0 48 48">
+      <path d="M24 2 44 13v22L24 46 4 35V13z" fill="none" stroke="currentColor" stroke-width="3"/>
+      <path d="M24 12 35 18v12L24 36 13 30V18z" fill="currentColor" opacity=".18"/>
+      <circle cx="24" cy="24" r="5" fill="none" stroke="currentColor" stroke-width="3"/>
+      <path d="M24 10v9M24 29v9M10 24h9M29 24h9" stroke="currentColor" stroke-width="2.5"/>
+    </symbol>
+  </svg>
+
+  <header class="appbar">
+    <div class="wrap appbar__inner">
+      <a href="index.html" class="brand" aria-label="ClutchVault home">
+        <svg class="brand__mark"><use href="#cv-mark"/></svg>
+        <span class="brand__text">CLUTCH<b>VAULT</b></span>
+      </a>
+      <a href="index.html" class="back">‹ Back to site</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="wrap">
+      <h1>YOUR <span>ACCOUNT</span></h1>
+      <p class="lead">Create a free account, add your BGMI ID, and get ready to claim tier rewards and join tournaments. No entry fees.</p>
+
+      <!-- LOGGED OUT -->
+      <section class="panel" id="authSec">
+        <div class="tabs" role="tablist">
+          <button type="button" id="tabLogin" role="tab" aria-selected="true">Log in</button>
+          <button type="button" id="tabSignup" role="tab" aria-selected="false">Sign up</button>
+        </div>
+        <form id="authForm" novalidate>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" type="email" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" autocomplete="current-password" minlength="8" required />
+            <small id="pwHint" class="hidden">At least 8 characters.</small>
+          </div>
+          <p class="msg" id="authMsg" role="status"></p>
+          <div class="row-actions">
+            <button class="btn btn--accent" type="submit" id="authBtn">Log in</button>
+            <button class="linkbtn" type="button" id="forgot">Forgot password?</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- SET NEW PASSWORD (after reset email link) -->
+      <section class="panel hidden" id="recSec">
+        <h2>SET A NEW PASSWORD</h2>
+        <form id="recForm" novalidate>
+          <div class="field">
+            <label for="newPass">New password</label>
+            <input id="newPass" type="password" autocomplete="new-password" minlength="8" required />
+          </div>
+          <p class="msg" id="recMsg" role="status"></p>
+          <button class="btn btn--accent" type="submit">Save password</button>
+        </form>
+      </section>
+
+      <!-- LOGGED IN -->
+      <section class="panel hidden" id="profileSec">
+        <h2>PLAYER PROFILE <span class="badge" id="roleBadge">player</span></h2>
+        <p class="who" id="who"></p>
+        <form id="profileForm" novalidate>
+          <div class="field">
+            <label for="displayName">Display name</label>
+            <input id="displayName" type="text" maxlength="40" autocomplete="nickname" />
+          </div>
+          <div class="field">
+            <label for="bgmiName">BGMI in-game name</label>
+            <input id="bgmiName" type="text" maxlength="40" />
+          </div>
+          <div class="field">
+            <label for="bgmiId">BGMI character ID</label>
+            <input id="bgmiId" type="text" inputmode="numeric" maxlength="15" placeholder="Numbers only" />
+            <small>5 to 15 digits. One BGMI ID can be linked to one account only.</small>
+          </div>
+          <p class="msg" id="profileMsg" role="status"></p>
+          <div class="row-actions">
+            <button class="btn btn--accent" type="submit">Save profile</button>
+            <a class="btn btn--ghost hidden" id="adminLink" href="admin.html">Admin panel</a>
+            <button class="linkbtn" type="button" id="logout">Log out</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <script src="supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="account.js"></script>
+</body>
+</html>

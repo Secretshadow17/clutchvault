@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex,nofollow" />
+  <title>Admin | ClutchVault</title>
+  <meta name="theme-color" content="#0A0B0F" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="cv-mark" viewBox="0 0 48 48">
+      <path d="M24 2 44 13v22L24 46 4 35V13z" fill="none" stroke="currentColor" stroke-width="3"/>
+      <path d="M24 12 35 18v12L24 36 13 30V18z" fill="currentColor" opacity=".18"/>
+      <circle cx="24" cy="24" r="5" fill="none" stroke="currentColor" stroke-width="3"/>
+      <path d="M24 10v9M24 29v9M10 24h9M29 24h9" stroke="currentColor" stroke-width="2.5"/>
+    </symbol>
+  </svg>
+
+  <header class="appbar">
+    <div class="wrap appbar__inner">
+      <a href="index.html" class="brand" aria-label="ClutchVault home">
+        <svg class="brand__mark"><use href="#cv-mark"/></svg>
+        <span class="brand__text">CLUTCH<b>VAULT</b></span>
+      </a>
+      <a href="account.html" class="back">‹ My account</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="wrap">
+      <h1>ADMIN <span>PANEL</span></h1>
+
+      <p class="msg" id="gateMsg" role="status">Checking access...</p>
+
+      <div id="adminBody" class="hidden">
+        <p class="lead">Only admins can see this page. Everything here is protected by database security rules, not just by hiding the page.</p>
+
+        <!-- SPONSOR BUDGET -->
+        <section class="panel panel--wide">
+          <h2>SPONSOR BUDGET</h2>
+          <div class="stats" id="stats"></div>
+
+          <form id="fundForm" novalidate>
+            <div class="grid2">
+              <div class="field"><label for="fSponsor">Sponsor name</label><input id="fSponsor" type="text" maxlength="80" required /></div>
+              <div class="field"><label for="fAmount">Amount (₹)</label><input id="fAmount" type="number" min="0" step="0.01" required /></div>
+            </div>
+            <div class="grid2">
+              <div class="field"><label for="fPurpose">Purpose</label><input id="fPurpose" type="text" maxlength="200" placeholder="e.g. Squad Showdown #1 prize pool" /></div>
+              <div class="field">
+                <label for="fStatus">Status</label>
+                <select id="fStatus">
+                  <option value="promised">promised</option>
+                  <option value="received">received</option>
+                  <option value="allocated">allocated</option>
+                  <option value="paid_out">paid_out</option>
+                </select>
+              </div>
+            </div>
+            <div class="field"><label for="fNotes">Notes</label><input id="fNotes" type="text" maxlength="500" /></div>
+            <p class="msg" id="fundMsg" role="status"></p>
+            <button class="btn btn--accent" type="submit">Add entry</button>
+          </form>
+
+          <div class="tablewrap">
+            <table class="data" aria-label="Sponsor funds">
+              <thead><tr><th>Sponsor</th><th>Amount</th><th>Purpose</th><th>Status</th><th>Added</th><th></th></tr></thead>
+              <tbody id="fundRows"></tbody>
+            </table>
+          </div>
+          <p class="who" style="margin-top:12px">Flow for each entry: promised, then received, then allocated to a prize pool, then paid out. Keep sponsor money in a separate bank account.</p>
+        </section>
+
+        <!-- PLAYERS -->
+        <section class="panel panel--wide section-gap">
+          <h2>PLAYERS <span class="badge" id="playerCount">0</span></h2>
+          <div class="tablewrap">
+            <table class="data" aria-label="Players">
+              <thead><tr><th>Display name</th><th>BGMI name</th><th>BGMI ID</th><th>Role</th><th>Joined</th></tr></thead>
+              <tbody id="playerRows"></tbody>
+            </table>
+          </div>
+          <p class="who" style="margin-top:12px">Showing the 200 newest players. Roles are changed in Supabase (SQL Editor) so nobody can be promoted by accident.</p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

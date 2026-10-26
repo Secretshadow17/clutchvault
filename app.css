@@ -1,0 +1,47 @@
+/* Shared styles for account.html and admin.html (uses variables from style.css) */
+.appbar{background:rgba(10,11,15,.95);border-bottom:1px solid var(--line)}
+.appbar__inner{display:flex;align-items:center;justify-content:space-between;height:68px}
+.appbar a.back{font-family:var(--head);font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.appbar a.back:hover{color:#fff}
+.page{padding:56px 0 90px;min-height:calc(100vh - 68px)}
+.page h1{font-size:clamp(2.2rem,5vw,3.4rem);margin-bottom:8px}
+.page h1 span{color:var(--accent)}
+.page .lead{color:var(--muted);margin-bottom:28px;max-width:640px}
+.panel{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);padding:28px;max-width:520px}
+.panel--wide{max-width:none}
+.panel h2{font-size:1.6rem;margin-bottom:16px}
+.tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--line)}
+.tabs button{flex:1;background:none;border:0;color:var(--muted);font-family:var(--head);font-weight:700;font-size:1.1rem;letter-spacing:.1em;text-transform:uppercase;padding:12px;cursor:pointer;border-bottom:3px solid transparent}
+.tabs button[aria-selected="true"]{color:#fff;border-bottom-color:var(--accent)}
+.field{display:grid;gap:6px;margin-bottom:16px}
+.field label{font-family:var(--head);letter-spacing:.12em;font-size:.85rem;color:var(--muted);text-transform:uppercase}
+.field input,.field select,.field textarea,.inline-select{background:var(--bg);border:1px solid var(--line);color:var(--text);padding:12px 14px;font:inherit;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--accent)}
+.field small{color:var(--muted);font-size:.8rem}
+.msg{min-height:1.4em;margin:6px 0 14px;font-size:.92rem}
+.msg.ok{color:#52d68a}.msg.err{color:var(--accent)}
+.linkbtn{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font:inherit;font-size:.9rem}
+.linkbtn:hover{color:#fff}
+.row-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:8px}
+.badge{display:inline-block;font-family:var(--head);font-weight:700;letter-spacing:.12em;font-size:.8rem;padding:4px 10px;border:1px solid var(--gold);color:var(--gold);text-transform:uppercase}
+.badge--admin{border-color:var(--accent);color:var(--accent)}
+.who{color:var(--muted);margin-bottom:18px;word-break:break-all}
+.hidden{display:none!important}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:6px 0 26px}
+.stat{background:var(--bg);border:1px solid var(--line);padding:16px}
+.stat b{display:block;font-family:var(--head);font-size:1.9rem;line-height:1.1}
+.stat span{font-family:var(--head);letter-spacing:.12em;font-size:.8rem;color:var(--muted);text-transform:uppercase}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);margin-top:10px}
+table.data{width:100%;border-collapse:collapse;min-width:640px}
+table.data th{background:var(--bg);font-family:var(--head);letter-spacing:.12em;font-size:.82rem;color:var(--muted);text-transform:uppercase;text-align:left;padding:12px 14px}
+table.data td{padding:12px 14px;border-top:1px solid var(--line);vertical-align:top;word-break:break-word}
+.inline-select{padding:6px 8px;width:auto}
+.del{background:none;border:1px solid var(--line);color:var(--muted);padding:5px 10px;cursor:pointer;font:inherit;font-size:.85rem}
+.del:hover{border-color:var(--accent);color:var(--accent)}
+.section-gap{margin-top:34px}
+@media (max-width:760px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .grid2{grid-template-columns:1fr}
+}

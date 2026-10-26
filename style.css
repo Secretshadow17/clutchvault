@@ -31,6 +31,9 @@ h2 span,h1 span{color:var(--accent)}
 .btn--ghost{background:transparent;color:var(--text);border-color:var(--text)}
 .btn--ghost:hover{background:var(--text);color:var(--bg)}
 .btn--sm{padding:10px 20px;font-size:.95rem}
+.btn--wa{background:#25D366;color:#06210f}
+.btn--wa:hover{background:#1fb457;transform:translateY(-2px)}
+[hidden]{display:none!important}
 .arrow{font-size:1.3em;line-height:0}
 
 /* NAV */
@@ -43,6 +46,7 @@ h2 span,h1 span{color:var(--accent)}
 .nav__links{display:flex;gap:26px;margin-left:auto}
 .nav__links a{font-family:var(--head);font-weight:600;font-size:1.05rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);transition:.2s}
 .nav__links a:hover{color:#fff}
+.nav__links .nav__login{display:none}
 .nav__toggle{display:none;background:none;border:0;width:40px;height:40px;cursor:pointer;margin-left:auto}
 .nav__toggle span{display:block;height:3px;background:var(--text);margin:6px 8px;transition:.25s}
 .nav__toggle[aria-expanded="true"] span:nth-child(1){transform:translateY(9px) rotate(45deg)}
@@ -139,6 +143,7 @@ h2 span,h1 span{color:var(--accent)}
 .tag--open{background:rgba(70,200,120,.15);color:#52d68a;border:1px solid #52d68a}
 .tag--soon{background:rgba(245,184,65,.12);color:var(--gold);border:1px solid var(--gold)}
 .tag--live{background:rgba(255,77,46,.15);color:var(--accent);border:1px solid var(--accent)}
+.tag--closed{background:rgba(154,156,166,.12);color:var(--muted);border:1px solid var(--muted)}
 .points{margin-top:36px;background:var(--panel);border:1px solid var(--line);padding:26px}
 .points h3{font-size:1.4rem;margin-bottom:16px;color:var(--gold)}
 .points__grid{display:grid;grid-template-columns:repeat(8,1fr);gap:10px}
@@ -231,6 +236,7 @@ h2 span,h1 span{color:var(--accent)}
   .nav__links{position:absolute;top:68px;left:0;right:0;flex-direction:column;gap:0;background:var(--bg);border-bottom:1px solid var(--line);margin:0;display:none}
   .nav__links.open{display:flex}
   .nav__links a{padding:16px 20px;border-top:1px solid var(--line)}
+  .nav__links .nav__login{display:block;color:var(--accent)}
   .hero{padding:40px 0 70px}
   .strip__inner{grid-template-columns:repeat(2,1fr)}
   .ranks{grid-template-columns:repeat(2,1fr)}
