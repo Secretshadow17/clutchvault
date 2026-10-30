@@ -4,38 +4,177 @@ const CONFIG = {
   // Example: "https://formspree.io/f/abcdwxyz"
   formEndpoint: "",
 
-  // Date of your next featured tournament (ISO format, India time).
-  nextTournament: "2026-11-15T18:00:00+05:30",
+  // Google Sheet links (File > Share > Publish to web > pick the tab > CSV).
+  // Leave a link empty ("") to keep using the sample data below for that section.
+  sheets: {
+    settings: "",
+    ranks: "",
+    tournaments: "",
+    leaderboard: "",
+  },
+
+  // Your WhatsApp Channel or Community invite link, e.g. "https://chat.whatsapp.com/XXXX".
+  // Leave empty ("") to hide the WhatsApp buttons.
+  whatsappLink: "",
+
+  // How often (in minutes) the page re-reads your sheet while it is open.
+  refreshMinutes: 5,
 };
 
-// Tier rewards. Edit names, points and rewards here. Set pts to null to hide points.
-const RANKS = [
-  { name: "Ace",         pts: null,  reward: "60uc",        slots: "Limited slots per season", level: 1 },
-  { name: "Ace Master",           pts: null,  reward: "200uc",       slots: "Limited slots per season", level: 2 },
-  { name: "Ace Dominator",    pts: 5200,  reward: "360uc", slots: "Limited slots per season", level: 3 },
-  { name: "Ace Dominator", pts: 5500,  reward: "1000 Cash", slots: "Limited slots per season", level: 4 },
-  { name: "Conqueror",     pts: null,  reward: "2000 Cash",       slots: "Very limited slots",       level: 5, top: true },
+/* ============ Sample data (shown until your sheet is connected) ============ */
+let SETTINGS = { nextTournament: "2026-11-15T18:00:00+05:30" };
+
+let RANKS = [
+  { name: "Crown",         pts: null,  reward: "UC Reward",        slots: "Limited slots per season", level: 1 },
+  { name: "Ace",           pts: null,  reward: "UC Reward+",       slots: "Limited slots per season", level: 2 },
+  { name: "Ace Master",    pts: null,  reward: "Bigger UC Reward", slots: "Limited slots per season", level: 3 },
+  { name: "Ace Dominator", pts: 6000,  reward: "Cash / UC Reward", slots: "Limited slots per season", level: 4 },
+  { name: "Conqueror",     pts: null,  reward: "Top Reward",       slots: "Very limited slots",       level: 5, top: true },
 ];
 
-// Sample tournaments. Replace with real ones as you create them.
-const TOURNAMENTS = [
-  { name: "Squad Showdown #1",   sub: "Squad • 6 matches • Final top 3 win", slots: "18 / 25 teams", pool: "Sponsor-funded", date: "15 Nov, 6:00 PM", status: "open" },
-  { name: "Vault Cup Qualifiers", sub: "Squad • 4 matches • Top teams advance", slots: "Opens soon",   pool: "Sponsor-funded", date: "22 Nov, 6:00 PM", status: "soon" },
-  { name: "1v1 Arena Open",      sub: "1v1 • Single elimination • 8 players",  slots: "5 / 8 players", pool: "Sponsor-funded", date: "29 Nov, 5:00 PM", status: "open" },
+let TOURNAMENTS = [
+  { name: "Squad Showdown #1",    sub: "Squad • 6 matches • Final top 3 win",   slots: "18 / 25 teams", pool: "Sponsor-funded", date: "15 Nov, 6:00 PM", status: "open" },
+  { name: "Vault Cup Qualifiers", sub: "Squad • 4 matches • Top teams advance", slots: "Opens soon",    pool: "Sponsor-funded", date: "22 Nov, 6:00 PM", status: "soon" },
+  { name: "1v1 Arena Open",       sub: "1v1 • Single elimination • 8 players",  slots: "5 / 8 players", pool: "Sponsor-funded", date: "29 Nov, 5:00 PM", status: "open" },
 ];
 
-// Sample leaderboard. Replace once real results exist.
-const BOARD = [
-  { name: "NovaStrike",  team: "Team Ember",   played: 12, pts: 214 },
-  { name: "GhostRiot",   team: "Night Raid",   played: 12, pts: 198 },
-  { name: "VenomX",      team: "Apex Wolves",  played: 12, pts: 187 },
-  { name: "SilentFang",  team: "Iron Pulse",   played: 10, pts: 160 },
-  { name: "BlazeKing",   team: "Red Orbit",    played: 10, pts: 151 },
+let BOARD = [
+  { name: "NovaStrike", team: "Team Ember",  played: 12, pts: 214 },
+  { name: "GhostRiot",  team: "Night Raid",  played: 12, pts: 198 },
+  { name: "VenomX",     team: "Apex Wolves", played: 12, pts: 187 },
+  { name: "SilentFang", team: "Iron Pulse",  played: 10, pts: 160 },
+  { name: "BlazeKing",  team: "Red Orbit",   played: 10, pts: 151 },
 ];
 
 /* ============ helpers ============ */
 const $ = (s, el = document) => el.querySelector(s);
-const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const toNum = (v) => {
+  const n = parseFloat(String(v ?? "").replace(/[^0-9.\-]/g, ""));
+  return Number.isFinite(n) ? n : null;
+};
+
+/* ============ Google Sheets (CSV) loading ============ */
+// Small CSV parser that handles quotes, commas and line breaks inside cells.
+function parseCSV(text) {
+  const rows = [];
+  let row = [], cell = "", inQuotes = false;
+  const src = String(text ?? "").replace(/^﻿/, "");
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (src[i + 1] === '"') { cell += '"'; i++; }
+        else inQuotes = false;
+      } else cell += ch;
+    } else if (ch === '"') inQuotes = true;
+    else if (ch === ",") { row.push(cell); cell = ""; }
+    else if (ch === "\n" || ch === "\r") {
+      if (ch === "\r" && src[i + 1] === "\n") i++;
+      row.push(cell); cell = "";
+      rows.push(row); row = [];
+    } else cell += ch;
+  }
+  if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+}
+
+// Turns CSV text into a list of objects keyed by the (lower-case) header row.
+function csvToObjects(text) {
+  const rows = parseCSV(text).filter((r) => r.some((c) => c.trim() !== ""));
+  if (rows.length < 2) return [];
+  const headers = rows[0].map((h) => h.trim().toLowerCase());
+  return rows.slice(1).map((r) => {
+    const o = {};
+    headers.forEach((h, i) => { if (h) o[h] = (r[i] ?? "").trim(); });
+    return o;
+  });
+}
+
+async function loadSheet(url) {
+  if (!url) return null;
+  try {
+    const bucket = Math.floor(Date.now() / (Math.max(1, CONFIG.refreshMinutes) * 60000));
+    const res = await fetch(url + (url.includes("?") ? "&" : "?") + "cb=" + bucket);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return csvToObjects(await res.text());
+  } catch (err) {
+    console.warn("ClutchVault: could not load a sheet, using the previous data.", err);
+    return null;
+  }
+}
+
+/* ---- map sheet rows to the shapes the page uses ---- */
+function mapRanks(rows) {
+  const out = rows
+    .map((r, i) => ({
+      name: r.name,
+      pts: toNum(r.points),
+      reward: r.reward || "",
+      slots: r.slots || "",
+      level: Math.min(5, Math.max(1, Math.round(toNum(r.level) || i + 1))),
+      top: /^(yes|true|1)$/i.test(r.top || ""),
+    }))
+    .filter((r) => r.name);
+  return out.length ? out : null;
+}
+
+function mapTournaments(rows) {
+  const ok = ["open", "soon", "live", "closed"];
+  const out = rows
+    .map((r) => {
+      const status = String(r.status || "").toLowerCase();
+      return {
+        name: r.name,
+        sub: r.details || "",
+        date: r.date || "",
+        slots: r.slots || "",
+        pool: r.prize || "",
+        status: ok.includes(status) ? status : "soon",
+      };
+    })
+    .filter((t) => t.name);
+  return out.length ? out : null;
+}
+
+function mapBoard(rows) {
+  const out = rows
+    .map((r) => ({ name: r.player, team: r.team || "", played: r.matches || "", pts: toNum(r.points) || 0 }))
+    .filter((p) => p.name)
+    .sort((a, b) => b.pts - a.pts)
+    .slice(0, 10);
+  return out.length ? out : null;
+}
+
+// Settings tab: two columns, "key" and "value".
+// Uses next_tournament_date (YYYY-MM-DD) and next_tournament_time (HH:MM, India time).
+function mapSettings(rows) {
+  const kv = {};
+  rows.forEach((r) => { if (r.key) kv[r.key.trim().toLowerCase()] = r.value; });
+  const date = (kv.next_tournament_date || "").trim();
+  const time = (kv.next_tournament_time || "00:00").trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(date) && /^\d{1,2}:\d{2}$/.test(time)) {
+    const [h, m] = time.split(":");
+    return { nextTournament: `${date}T${h.padStart(2, "0")}:${m}:00+05:30` };
+  }
+  return null;
+}
+
+async function refreshFromSheets() {
+  const s = CONFIG.sheets;
+  const [settings, ranks, tournaments, board] = await Promise.all([
+    loadSheet(s.settings), loadSheet(s.ranks), loadSheet(s.tournaments), loadSheet(s.leaderboard),
+  ]);
+  const newSettings = settings && mapSettings(settings);
+  if (newSettings) SETTINGS = newSettings;
+  const newRanks = ranks && mapRanks(ranks);
+  if (newRanks) RANKS = newRanks;
+  const newTours = tournaments && mapTournaments(tournaments);
+  if (newTours) TOURNAMENTS = newTours;
+  const newBoard = board && mapBoard(board);
+  if (newBoard) BOARD = newBoard;
+  renderAll();
+}
 
 /* ============ rank badges (original SVG) ============ */
 function badge(level, top) {
@@ -63,14 +202,14 @@ function renderRanks() {
       <p class="rank__pts">${r.pts ? esc(r.pts.toLocaleString("en-IN")) + " PTS" : "&nbsp;"}</p>
       <p class="rank__reward">${esc(r.reward)}</p>
       <p class="rank__slots">${esc(r.slots)}</p>
-      <a href="#join" class="btn btn--accent">Claim</a>
+      <a href="claim.html" class="btn btn--accent">Claim</a>
     </article>`).join("");
 }
 
 function renderTournaments() {
   const el = $("#tourList");
   if (!el) return;
-  const label = { open: "Registration Open", soon: "Opens Soon", live: "Live Now" };
+  const label = { open: "Registration Open", soon: "Opens Soon", live: "Live Now", closed: "Closed" };
   el.innerHTML = TOURNAMENTS.map((t) => `
     <article class="t reveal">
       <div><h4>${esc(t.name)}</h4><small>${esc(t.sub)}</small></div>
@@ -96,14 +235,22 @@ function renderBoard() {
   el.innerHTML = head + rows;
 }
 
+function renderAll() {
+  renderRanks();
+  renderTournaments();
+  renderBoard();
+  setupReveal();
+}
+
 /* ============ countdown ============ */
+let countdownTimer = null;
 function startCountdown() {
-  const target = new Date(CONFIG.nextTournament).getTime();
   const els = { d: $("#cd-d"), h: $("#cd-h"), m: $("#cd-m"), s: $("#cd-s") };
-  if (!els.d || isNaN(target)) return;
+  if (!els.d) return;
   const pad = (n) => String(n).padStart(2, "0");
   const tick = () => {
-    let diff = Math.max(0, target - Date.now());
+    const target = new Date(SETTINGS.nextTournament).getTime();
+    let diff = Number.isNaN(target) ? 0 : Math.max(0, target - Date.now());
     const d = Math.floor(diff / 864e5); diff -= d * 864e5;
     const h = Math.floor(diff / 36e5);  diff -= h * 36e5;
     const m = Math.floor(diff / 6e4);   diff -= m * 6e4;
@@ -112,7 +259,8 @@ function startCountdown() {
     els.m.textContent = pad(m); els.s.textContent = pad(s);
   };
   tick();
-  setInterval(tick, 1000);
+  if (countdownTimer) clearInterval(countdownTimer);
+  countdownTimer = setInterval(tick, 1000);
 }
 
 /* ============ nav ============ */
@@ -167,28 +315,40 @@ function setupForm() {
 }
 
 /* ============ scroll reveal ============ */
+let revealObserver = null;
 function setupReveal() {
-  const items = document.querySelectorAll(".reveal");
+  const items = document.querySelectorAll(".reveal:not(.in)");
   if (!("IntersectionObserver" in window)) {
     items.forEach((i) => i.classList.add("in"));
     return;
   }
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((en) => {
-      if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
-    });
-  }, { threshold: 0.12 });
-  items.forEach((i) => io.observe(i));
+  if (!revealObserver) {
+    revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (en.isIntersecting) { en.target.classList.add("in"); revealObserver.unobserve(en.target); }
+      });
+    }, { threshold: 0.12 });
+  }
+  items.forEach((i) => revealObserver.observe(i));
 }
 
 /* ============ init ============ */
 document.addEventListener("DOMContentLoaded", () => {
-  renderRanks();
-  renderTournaments();
-  renderBoard();
+  renderAll();
   startCountdown();
   setupNav();
   setupForm();
-  setupReveal();
   const y = $("#year"); if (y) y.textContent = new Date().getFullYear();
+
+  // WhatsApp join buttons: shown only when a link is set and it is a WhatsApp URL.
+  const wa = CONFIG.whatsappLink;
+  if (/^https:\/\/(chat\.whatsapp\.com|whatsapp\.com\/channel|wa\.me)\//.test(wa)) {
+    document.querySelectorAll("[data-wa]").forEach((a) => { a.href = wa; a.hidden = false; });
+  }
+
+  const hasSheets = Object.values(CONFIG.sheets).some(Boolean);
+  if (hasSheets) {
+    refreshFromSheets().then(startCountdown);
+    setInterval(() => refreshFromSheets().then(startCountdown), Math.max(1, CONFIG.refreshMinutes) * 60000);
+  }
 });

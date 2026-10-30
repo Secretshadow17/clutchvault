@@ -40,6 +40,17 @@ Files: `account.html`, `account.js`, `admin.html`, `admin.js`, `app.css`, `supab
 
 Only the publishable key lives in the site code. Never put a secret or service_role key in any file in this repo.
 
+## Step 2: Tier reward claims
+Files: `claim.html`, `claim.js`, `step2_database.sql` (plus updated `admin.html`, `admin.js`, `account.html`, `app.css`, `script.js`).
+
+1. **Database:** Supabase > SQL Editor > New query > paste `step2_database.sql` > Run. (Run `step1_database.sql` first.) Supabase may show a "destructive operation" warning because the script re-creates its own rules; that is expected, click Run.
+2. Upload the updated files to GitHub (same names replace the old ones).
+3. Player flow: log in, save a BGMI ID in the profile, open `claim.html`, pick a tier, upload a screenshot (PNG/JPG/WebP, up to 3 MB), submit.
+4. Admin flow: `admin.html` > Tier reward claims > View proof > Approve or Reject (with a note) > after paying, Mark paid with a payout note.
+5. Each season, edit `CURRENT_SEASON` and the `TIERS` list at the top of `claim.js`.
+
+Rules built into the database: one live claim per player per tier per season (a rejected claim can be re-sent), at most 5 pending claims per player, screenshots are stored privately (only the player and admins can open them), and only admins can approve, reject or mark paid. Do not put full gift codes or phone numbers in payout notes.
+
 ## Other things to edit in `script.js`
 - `CONFIG.formEndpoint`: paste your Formspree form URL to start collecting emails. Until then the form shows a "not connected" message.
 - The sample data near the top of the file is only a fallback. Once your sheet is connected, you do not need to edit it.

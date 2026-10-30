@@ -45,3 +45,8 @@ table.data td{padding:12px 14px;border-top:1px solid var(--line);vertical-align:
   .stats{grid-template-columns:repeat(2,1fr)}
   .grid2{grid-template-columns:1fr}
 }
+
+/* claims */
+.field input[type="file"]{padding:10px}
+.field input[type="file"]::file-selector-button{background:var(--accent);color:#fff;border:0;padding:8px 14px;margin-right:12px;font-family:var(--head);font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+td .del + .del{margin-left:6px}

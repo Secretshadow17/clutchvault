@@ -77,6 +77,29 @@
           <p class="who" style="margin-top:12px">Flow for each entry: promised, then received, then allocated to a prize pool, then paid out. Keep sponsor money in a separate bank account.</p>
         </section>
 
+        <!-- TIER CLAIMS -->
+        <section class="panel panel--wide section-gap">
+          <h2>TIER REWARD CLAIMS</h2>
+          <div class="field" style="max-width:260px">
+            <label for="claimFilter">Show</label>
+            <select id="claimFilter">
+              <option value="pending">pending</option>
+              <option value="approved">approved (to pay)</option>
+              <option value="paid">paid</option>
+              <option value="rejected">rejected</option>
+              <option value="all">all</option>
+            </select>
+          </div>
+          <p class="msg" id="claimMsg" role="status"></p>
+          <div class="tablewrap">
+            <table class="data" aria-label="Tier claims">
+              <thead><tr><th>Player</th><th>BGMI ID</th><th>Tier</th><th>Points</th><th>Season</th><th>Sent</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="claimRows"></tbody>
+            </table>
+          </div>
+          <p class="who" style="margin-top:12px">Check that the BGMI ID in the screenshot matches the player's ID, the tier and season are right, and the image is not edited. Pay approved claims from the sponsor fund, then mark them paid with a payout note (for example a UPI reference or UC code ID). Do not put full codes or phone numbers in the note.</p>
+        </section>
+
         <!-- PLAYERS -->
         <section class="panel panel--wide section-gap">
           <h2>PLAYERS <span class="badge" id="playerCount">0</span></h2>

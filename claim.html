@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Claim Tier Reward | ClutchVault</title>
+  <meta name="theme-color" content="#0A0B0F" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="cv-mark" viewBox="0 0 48 48">
+      <path d="M24 2 44 13v22L24 46 4 35V13z" fill="none" stroke="currentColor" stroke-width="3"/>
+      <path d="M24 12 35 18v12L24 36 13 30V18z" fill="currentColor" opacity=".18"/>
+      <circle cx="24" cy="24" r="5" fill="none" stroke="currentColor" stroke-width="3"/>
+      <path d="M24 10v9M24 29v9M10 24h9M29 24h9" stroke="currentColor" stroke-width="2.5"/>
+    </symbol>
+  </svg>
+
+  <header class="appbar">
+    <div class="wrap appbar__inner">
+      <a href="index.html" class="brand" aria-label="ClutchVault home">
+        <svg class="brand__mark"><use href="#cv-mark"/></svg>
+        <span class="brand__text">CLUTCH<b>VAULT</b></span>
+      </a>
+      <a href="account.html" class="back">‹ My account</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="wrap">
+      <h1>CLAIM A <span>TIER REWARD</span></h1>
+      <p class="lead">Reached a reward tier in BGMI? Upload a clear screenshot of your profile showing your character ID, tier and points. An admin checks every claim. Free, no entry fee.</p>
+
+      <p class="msg" id="gateMsg" role="status">Checking your account...</p>
+
+      <div id="claimBody" class="hidden">
+        <section class="panel">
+          <h2>NEW CLAIM <span class="badge" id="seasonBadge"></span></h2>
+          <form id="claimForm" novalidate>
+            <div class="field">
+              <label for="tier">Tier reached</label>
+              <select id="tier"></select>
+            </div>
+            <div class="field">
+              <label for="points">Points (optional)</label>
+              <input id="points" type="number" min="0" max="100000" step="1" inputmode="numeric" />
+            </div>
+            <div class="field">
+              <label for="proof">Screenshot proof</label>
+              <input id="proof" type="file" accept="image/png,image/jpeg,image/webp" />
+              <small>PNG, JPG or WebP, up to 3 MB. Your BGMI character ID and tier must be clearly visible. Edited or fake screenshots mean a permanent ban.</small>
+            </div>
+            <p class="msg" id="claimMsg" role="status"></p>
+            <button class="btn btn--accent" type="submit" id="claimBtn">Submit claim</button>
+          </form>
+        </section>
+
+        <section class="panel panel--wide section-gap">
+          <h2>MY CLAIMS</h2>
+          <div class="tablewrap">
+            <table class="data" aria-label="My claims">
+              <thead><tr><th>Season</th><th>Tier</th><th>Points</th><th>Status</th><th>Note from admin</th><th>Sent</th></tr></thead>
+              <tbody id="myClaims"></tbody>
+            </table>
+          </div>
+          <p class="who" style="margin-top:12px">Status: pending (waiting for review), approved (reward on its way), paid, or rejected. Rewards are limited by the sponsor fund, so approval is not automatic.</p>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="claim.js"></script>
+</body>
+</html>

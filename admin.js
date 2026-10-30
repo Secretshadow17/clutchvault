@@ -25,6 +25,7 @@
   const td = (v) => el("td", null, v == null || v === "" ? "—" : String(v));
 
   let busy = false;
+  let adminId = null;
 
   async function gate() {
     const gateMsg = $("gateMsg");
@@ -41,7 +42,9 @@
     }
     gateMsg.classList.add("hidden");
     $("adminBody").classList.remove("hidden");
-    await Promise.all([loadFunds(), loadPlayers()]);
+    adminId = data.session.user.id;
+    $("claimFilter").addEventListener("change", loadClaims);
+    await Promise.all([loadFunds(), loadClaims(), loadPlayers()]);
   }
 
   /* ---------- sponsor funds ---------- */
@@ -111,6 +114,74 @@
     say(msg, "Entry added.", "ok");
     await loadFunds();
   });
+
+  /* ---------- tier reward claims ---------- */
+  async function loadClaims() {
+    const msg = $("claimMsg");
+    const filter = $("claimFilter").value;
+    let q = sb.from("tier_claims").select("*").order("created_at", { ascending: false }).limit(200);
+    if (filter !== "all") q = q.eq("status", filter);
+    const { data, error } = await q;
+    const body = $("claimRows");
+    body.replaceChildren();
+    if (error) {
+      body.append(el("tr", null, el("td", { colspan: "8" }, "Could not load claims: " + error.message + " (did you run step2_database.sql?)")));
+      return;
+    }
+    if (!data.length) {
+      body.append(el("tr", null, el("td", { colspan: "8" }, "No claims in this view.")));
+      return;
+    }
+    const ids = [...new Set(data.map((c) => c.user_id))];
+    const { data: profs } = await sb.from("profiles").select("id,display_name,bgmi_name,bgmi_id").in("id", ids);
+    const byId = {};
+    (profs || []).forEach((p) => { byId[p.id] = p; });
+
+    data.forEach((c) => {
+      const p = byId[c.user_id] || {};
+      const who = (p.display_name || "—") + (p.bgmi_name ? " (" + p.bgmi_name + ")" : "");
+      const actions = el("td");
+
+      const view = el("button", { class: "del", type: "button" }, "View proof");
+      view.addEventListener("click", async () => {
+        const w = window.open("about:blank", "_blank");
+        const { data: signed, error: e } = await sb.storage.from("rank-proofs").createSignedUrl(c.proof_path, 120);
+        if (e || !signed) {
+          if (w) w.close();
+          return say(msg, "Could not open the screenshot: " + (e ? e.message : "unknown error"), "err");
+        }
+        if (w) w.location.href = signed.signedUrl;
+      });
+      actions.append(view);
+
+      const act = (label, status, promptText) => {
+        const b = el("button", { class: "del", type: "button" }, label);
+        b.addEventListener("click", async () => {
+          const note = promptText ? prompt(promptText, c.admin_note || "") : null;
+          if (promptText && note === null) return; // cancelled
+          const { error: e } = await sb.from("tier_claims").update({
+            status,
+            admin_note: note ? note.trim().slice(0, 300) : null,
+            reviewed_by: adminId,
+            reviewed_at: new Date().toISOString(),
+          }).eq("id", c.id);
+          if (e) say(msg, "Could not update the claim: " + e.message, "err");
+          else say(msg, "Claim updated.", "ok");
+          await loadClaims();
+        });
+        actions.append(" ", b);
+      };
+      if (c.status === "pending") {
+        act("Approve", "approved", "Note for the player (optional):");
+        act("Reject", "rejected", "Reason for rejecting (the player will see this):");
+      } else if (c.status === "approved") {
+        act("Mark paid", "paid", "Payout note, e.g. UPI ref or UC code ID (optional):");
+      }
+
+      body.append(el("tr", null,
+        td(who), td(p.bgmi_id), td(c.tier), td(c.points), td(c.season), td(fmtDate(c.created_at)), td(c.status), actions));
+    });
+  }
 
   /* ---------- players ---------- */
   async function loadPlayers() {
