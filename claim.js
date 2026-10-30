@@ -9,6 +9,7 @@
   // ============================================
 
   const MAX_BYTES = 3 * 1024 * 1024;
+  const CODE_MINUTES = 30; // must match the 30 minutes in step2b_security.sql
   const EXT = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp" };
   const fmtDate = (d) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "");
 
@@ -26,7 +27,55 @@
 
   let user = null;
   let busy = false;
+  let claimCode = null;
+  let codeExpiresAt = 0;
+  let codeTimer = null;
 
+  /* ---------- verification code ---------- */
+  function clearCode() {
+    claimCode = null;
+    codeExpiresAt = 0;
+    if (codeTimer) { clearInterval(codeTimer); codeTimer = null; }
+    $("codeBox").classList.add("hidden");
+    $("codeText").textContent = "";
+    $("codeTime").textContent = "";
+  }
+
+  function tickCode() {
+    const left = codeExpiresAt - Date.now();
+    if (left <= 0) {
+      clearCode();
+      say($("claimMsg"), "Your code expired. Get a new code and take a fresh screenshot.", "err");
+      return;
+    }
+    const m = Math.floor(left / 60000), s = Math.floor((left % 60000) / 1000);
+    $("codeTime").textContent = "expires in " + m + ":" + String(s).padStart(2, "0");
+  }
+
+  $("getCode").addEventListener("click", async () => {
+    const msg = $("claimMsg");
+    say(msg, "");
+    $("getCode").disabled = true;
+    try {
+      const { data, error } = await sb.rpc("new_claim_code");
+      if (error) throw error;
+      claimCode = String(data);
+      codeExpiresAt = Date.now() + CODE_MINUTES * 60000;
+      $("codeText").textContent = claimCode;
+      $("codeBox").classList.remove("hidden");
+      if (codeTimer) clearInterval(codeTimer);
+      tickCode();
+      codeTimer = setInterval(tickCode, 1000);
+    } catch (err) {
+      const m = String((err && err.message) || err || "");
+      if (/too many codes/i.test(m)) say(msg, "You asked for too many codes. Please try again in a while.", "err");
+      else say(msg, "Could not get a code: " + m + " (did you run step2b_security.sql?)", "err");
+    } finally {
+      $("getCode").disabled = false;
+    }
+  });
+
+  /* ---------- page setup ---------- */
   async function gate() {
     const gateMsg = $("gateMsg");
     const { data } = await sb.auth.getSession();
@@ -66,6 +115,7 @@
       td(c.season), td(c.tier), td(c.points), td(c.status), td(c.admin_note), td(fmtDate(c.created_at)))));
   }
 
+  /* ---------- submit ---------- */
   $("claimForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     if (busy || !user) return;
@@ -74,6 +124,7 @@
     const ptsRaw = $("points").value.trim();
     const file = $("proof").files[0];
 
+    if (!claimCode) return say(msg, "First press 'Get my verification code' and write the code in your BGMI profile.", "err");
     if (!TIERS.includes(tier)) return say(msg, "Choose a tier.", "err");
     let points = null;
     if (ptsRaw !== "") {
@@ -95,18 +146,19 @@
 
       say(msg, "Submitting your claim...");
       const { error } = await sb.from("tier_claims").insert({
-        user_id: user.id, season: CURRENT_SEASON, tier, points, proof_path: path,
+        user_id: user.id, season: CURRENT_SEASON, tier, points, proof_path: path, verify_code: claimCode,
       });
       if (error) throw error;
 
       $("claimForm").reset();
+      clearCode();
       say(msg, "Claim sent. An admin will review it soon.", "ok");
       await loadMine();
     } catch (err) {
       const m = String((err && err.message) || err || "");
-      if (err && err.code === "23505") say(msg, "You already have a pending or approved claim for this tier this season.", "err");
+      if (err && err.code === "23505") say(msg, "You already have a pending or approved claim for this tier this season, or this code was already used.", "err");
       else if (/too many pending/i.test(m)) say(msg, "You have too many pending claims. Wait for them to be reviewed first.", "err");
-      else if (/row-level security|violates/i.test(m)) say(msg, "This claim was not allowed. Make sure your BGMI ID is saved in your profile.", "err");
+      else if (/row-level security|violates/i.test(m)) say(msg, "This claim was not allowed. Your code may have expired: get a new code, and make sure your BGMI ID is saved in your profile.", "err");
       else say(msg, "Could not send the claim: " + m, "err");
     } finally {
       busy = false;

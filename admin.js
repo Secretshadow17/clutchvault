@@ -6,9 +6,9 @@
   const inr = (n) => "₹" + Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 });
   const fmtDate = (d) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "");
 
-  function say(el, text, kind) {
-    el.textContent = text || "";
-    el.className = "msg" + (kind ? " " + kind : "");
+  function say(elm, text, kind) {
+    elm.textContent = text || "";
+    elm.className = "msg" + (kind ? " " + kind : "");
   }
 
   // Safe DOM builder: all text goes in via textContent, never innerHTML.
@@ -27,24 +27,133 @@
   let busy = false;
   let adminId = null;
 
+  /* ---------- which screen is showing ---------- */
+  function screen(which) {
+    $("gateMsg").classList.toggle("hidden", which !== "gate");
+    $("loginSec").classList.toggle("hidden", which !== "login");
+    $("deniedSec").classList.toggle("hidden", which !== "denied");
+    $("adminBody").classList.toggle("hidden", which !== "admin");
+    $("logoutBtn").classList.toggle("hidden", which !== "admin");
+  }
+
   async function gate() {
-    const gateMsg = $("gateMsg");
+    screen("gate");
+    say($("gateMsg"), "Checking access...");
     const { data } = await sb.auth.getSession();
-    if (!data.session) {
-      say(gateMsg, "Please log in first.", "err");
-      gateMsg.append(" ", el("a", { href: "account.html", class: "linkbtn" }, "Go to login"));
-      return;
-    }
+    if (!data.session) return screen("login");
     const { data: me, error } = await sb.from("profiles").select("role").eq("id", data.session.user.id).maybeSingle();
-    if (error || !me || me.role !== "admin") {
-      say(gateMsg, "Access denied. This page is for admins only.", "err");
+    if (error || !me || me.role !== "admin") return screen("denied");
+    adminId = data.session.user.id;
+    screen("admin");
+    await Promise.all([loadClaims(), loadFunds(), loadPlayers()]);
+  }
+
+  /* ---------- login / logout ---------- */
+  $("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const msg = $("loginMsg");
+    const email = $("aEmail").value.trim();
+    const password = $("aPass").value;
+    if (!email || !password) return say(msg, "Enter your admin email and password.", "err");
+    $("loginBtn").disabled = true;
+    say(msg, "Logging in...");
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+    $("loginBtn").disabled = false;
+    if (error) {
+      return say(msg, /invalid login/i.test(error.message) ? "Wrong email or password." : error.message, "err");
+    }
+    $("aPass").value = "";
+    say(msg, "");
+    await gate();
+  });
+
+  async function logout() {
+    await sb.auth.signOut();
+    screen("login");
+  }
+  $("logoutBtn").addEventListener("click", logout);
+  $("deniedLogout").addEventListener("click", logout);
+
+  /* ---------- tabs ---------- */
+  const TABS = { tabClaims: "paneClaims", tabFunds: "paneFunds", tabPlayers: "panePlayers" };
+  Object.keys(TABS).forEach((tabId) => {
+    $(tabId).addEventListener("click", () => {
+      Object.keys(TABS).forEach((t) => {
+        $(t).setAttribute("aria-selected", String(t === tabId));
+        $(TABS[t]).classList.toggle("hidden", t !== tabId);
+      });
+    });
+  });
+
+  /* ---------- tier reward claims ---------- */
+  $("claimFilter").addEventListener("change", loadClaims);
+
+  async function loadClaims() {
+    const msg = $("claimMsg");
+    const filter = $("claimFilter").value;
+    let q = sb.from("tier_claims").select("*").order("created_at", { ascending: false }).limit(200);
+    if (filter !== "all") q = q.eq("status", filter);
+    const { data, error } = await q;
+    const body = $("claimRows");
+    body.replaceChildren();
+    if (error) {
+      body.append(el("tr", null, el("td", { colspan: "9" }, "Could not load claims: " + error.message + " (did you run step2_database.sql and step2b_security.sql?)")));
       return;
     }
-    gateMsg.classList.add("hidden");
-    $("adminBody").classList.remove("hidden");
-    adminId = data.session.user.id;
-    $("claimFilter").addEventListener("change", loadClaims);
-    await Promise.all([loadFunds(), loadClaims(), loadPlayers()]);
+    if (!data.length) {
+      body.append(el("tr", null, el("td", { colspan: "9" }, "No claims in this view.")));
+      return;
+    }
+    const ids = [...new Set(data.map((c) => c.user_id))];
+    const { data: profs } = await sb.from("profiles").select("id,display_name,bgmi_name,bgmi_id").in("id", ids);
+    const byId = {};
+    (profs || []).forEach((p) => { byId[p.id] = p; });
+
+    data.forEach((c) => {
+      const p = byId[c.user_id] || {};
+      const who = (p.display_name || "—") + (p.bgmi_name ? " (" + p.bgmi_name + ")" : "");
+      const actions = el("td");
+
+      const view = el("button", { class: "del", type: "button" }, "View proof");
+      view.addEventListener("click", async () => {
+        const w = window.open("about:blank", "_blank");
+        const { data: signed, error: e } = await sb.storage.from("rank-proofs").createSignedUrl(c.proof_path, 120);
+        if (e || !signed) {
+          if (w) w.close();
+          return say(msg, "Could not open the screenshot: " + (e ? e.message : "unknown error"), "err");
+        }
+        if (w) w.location.href = signed.signedUrl;
+      });
+      actions.append(view);
+
+      const act = (label, status, promptText) => {
+        const b = el("button", { class: "del", type: "button" }, label);
+        b.addEventListener("click", async () => {
+          const note = promptText ? prompt(promptText, c.admin_note || "") : null;
+          if (promptText && note === null) return; // cancelled
+          const { error: e } = await sb.from("tier_claims").update({
+            status,
+            admin_note: note ? note.trim().slice(0, 300) : null,
+            reviewed_by: adminId,
+            reviewed_at: new Date().toISOString(),
+          }).eq("id", c.id);
+          if (e) say(msg, "Could not update the claim: " + e.message, "err");
+          else say(msg, "Claim updated.", "ok");
+          await loadClaims();
+        });
+        actions.append(" ", b);
+      };
+      if (c.status === "pending") {
+        act("Approve", "approved", "Note for the player (optional):");
+        act("Reject", "rejected", "Reason for rejecting (the player will see this):");
+      } else if (c.status === "approved") {
+        act("Mark paid", "paid", "Payout note, e.g. UPI ref or UC code ID (optional):");
+      }
+
+      body.append(el("tr", null,
+        td(who), td(p.bgmi_id), td(c.verify_code), td(c.tier), td(c.points), td(c.season),
+        td(fmtDate(c.created_at)), td(c.status), actions));
+    });
   }
 
   /* ---------- sponsor funds ---------- */
@@ -115,74 +224,6 @@
     await loadFunds();
   });
 
-  /* ---------- tier reward claims ---------- */
-  async function loadClaims() {
-    const msg = $("claimMsg");
-    const filter = $("claimFilter").value;
-    let q = sb.from("tier_claims").select("*").order("created_at", { ascending: false }).limit(200);
-    if (filter !== "all") q = q.eq("status", filter);
-    const { data, error } = await q;
-    const body = $("claimRows");
-    body.replaceChildren();
-    if (error) {
-      body.append(el("tr", null, el("td", { colspan: "8" }, "Could not load claims: " + error.message + " (did you run step2_database.sql?)")));
-      return;
-    }
-    if (!data.length) {
-      body.append(el("tr", null, el("td", { colspan: "8" }, "No claims in this view.")));
-      return;
-    }
-    const ids = [...new Set(data.map((c) => c.user_id))];
-    const { data: profs } = await sb.from("profiles").select("id,display_name,bgmi_name,bgmi_id").in("id", ids);
-    const byId = {};
-    (profs || []).forEach((p) => { byId[p.id] = p; });
-
-    data.forEach((c) => {
-      const p = byId[c.user_id] || {};
-      const who = (p.display_name || "—") + (p.bgmi_name ? " (" + p.bgmi_name + ")" : "");
-      const actions = el("td");
-
-      const view = el("button", { class: "del", type: "button" }, "View proof");
-      view.addEventListener("click", async () => {
-        const w = window.open("about:blank", "_blank");
-        const { data: signed, error: e } = await sb.storage.from("rank-proofs").createSignedUrl(c.proof_path, 120);
-        if (e || !signed) {
-          if (w) w.close();
-          return say(msg, "Could not open the screenshot: " + (e ? e.message : "unknown error"), "err");
-        }
-        if (w) w.location.href = signed.signedUrl;
-      });
-      actions.append(view);
-
-      const act = (label, status, promptText) => {
-        const b = el("button", { class: "del", type: "button" }, label);
-        b.addEventListener("click", async () => {
-          const note = promptText ? prompt(promptText, c.admin_note || "") : null;
-          if (promptText && note === null) return; // cancelled
-          const { error: e } = await sb.from("tier_claims").update({
-            status,
-            admin_note: note ? note.trim().slice(0, 300) : null,
-            reviewed_by: adminId,
-            reviewed_at: new Date().toISOString(),
-          }).eq("id", c.id);
-          if (e) say(msg, "Could not update the claim: " + e.message, "err");
-          else say(msg, "Claim updated.", "ok");
-          await loadClaims();
-        });
-        actions.append(" ", b);
-      };
-      if (c.status === "pending") {
-        act("Approve", "approved", "Note for the player (optional):");
-        act("Reject", "rejected", "Reason for rejecting (the player will see this):");
-      } else if (c.status === "approved") {
-        act("Mark paid", "paid", "Payout note, e.g. UPI ref or UC code ID (optional):");
-      }
-
-      body.append(el("tr", null,
-        td(who), td(p.bgmi_id), td(c.tier), td(c.points), td(c.season), td(fmtDate(c.created_at)), td(c.status), actions));
-    });
-  }
-
   /* ---------- players ---------- */
   async function loadPlayers() {
     const { data, error } = await sb.from("profiles")
@@ -204,7 +245,7 @@
   }
 
   sb.auth.onAuthStateChange((event) => {
-    if (event === "SIGNED_OUT") location.href = "account.html";
+    if (event === "SIGNED_OUT") screen("login");
   });
   gate();
 })();

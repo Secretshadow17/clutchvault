@@ -51,6 +51,16 @@ Files: `claim.html`, `claim.js`, `step2_database.sql` (plus updated `admin.html`
 
 Rules built into the database: one live claim per player per tier per season (a rejected claim can be re-sent), at most 5 pending claims per player, screenshots are stored privately (only the player and admins can open them), and only admins can approve, reject or mark paid. Do not put full gift codes or phone numbers in payout notes.
 
+## Step 2b: Anti-fraud code and the separate admin console
+Files: `step2b_security.sql`, updated `claim.html`, `claim.js`, `admin.html`, `admin.js`, `account.html`, `account.js`, `app.css`.
+
+1. **Database:** Supabase > SQL Editor > New query > paste `step2b_security.sql` > Run. (Run it after `step2_database.sql`.)
+2. **How the code works:** before claiming, a player presses "Get my verification code". The server creates a one-time code (valid 30 minutes, used once, tied to that player). The player writes it in their own BGMI profile and the screenshot must show it. A stolen or borrowed screenshot cannot contain a fresh code written by the real account holder, and the admin sees the code next to each claim.
+3. **Admin console:** open `https://YOUR-USERNAME.github.io/clutchvault/admin.html` directly and bookmark it. It has its own login. No public page links to it. Players who open it are shown "Access denied". Real protection still comes from the database rules, not from hiding the page.
+4. Old claims made before this step have no code and show "—".
+
+Limits to know: no system can be 100% fraud-proof. The code makes borrowed screenshots useless, but admins should still compare the BGMI ID, check the image looks untouched, and for high-value tiers ask for a short screen recording before approving. Consider turning on Supabase two-factor login for admin accounts before launch.
+
 ## Other things to edit in `script.js`
 - `CONFIG.formEndpoint`: paste your Formspree form URL to start collecting emails. Until then the form shows a "not connected" message.
 - The sample data near the top of the file is only a fallback. Once your sheet is connected, you do not need to edit it.

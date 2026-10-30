@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex,nofollow" />
-  <title>Admin | ClutchVault</title>
+  <title>Admin Console | ClutchVault</title>
   <meta name="theme-color" content="#0A0B0F" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,27 +22,93 @@
     </symbol>
   </svg>
 
-  <header class="appbar">
+  <header class="appbar adminbar">
     <div class="wrap appbar__inner">
-      <a href="index.html" class="brand" aria-label="ClutchVault home">
+      <div class="brand">
         <svg class="brand__mark"><use href="#cv-mark"/></svg>
         <span class="brand__text">CLUTCH<b>VAULT</b></span>
-      </a>
-      <a href="account.html" class="back">‹ My account</a>
+        <span class="tag-admin">ADMIN CONSOLE</span>
+      </div>
+      <div class="appbar__right">
+        <button class="linkbtn hidden" type="button" id="logoutBtn">Log out</button>
+      </div>
     </div>
   </header>
 
   <main class="page">
     <div class="wrap">
-      <h1>ADMIN <span>PANEL</span></h1>
+
+      <!-- ADMIN LOGIN -->
+      <section class="panel hidden" id="loginSec">
+        <h2>ADMIN LOGIN</h2>
+        <p class="who">Staff only. Players cannot use this page.</p>
+        <form id="loginForm" novalidate>
+          <div class="field">
+            <label for="aEmail">Admin email</label>
+            <input id="aEmail" type="email" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label for="aPass">Password</label>
+            <input id="aPass" type="password" autocomplete="current-password" required />
+          </div>
+          <p class="msg" id="loginMsg" role="status"></p>
+          <button class="btn btn--accent" type="submit" id="loginBtn">Log in</button>
+        </form>
+      </section>
+
+      <!-- NOT AN ADMIN -->
+      <section class="panel hidden" id="deniedSec">
+        <h2>ACCESS DENIED</h2>
+        <p class="msg err" id="deniedMsg" role="status">This account is not an admin.</p>
+        <button class="btn btn--ghost" type="button" id="deniedLogout">Log out</button>
+      </section>
 
       <p class="msg" id="gateMsg" role="status">Checking access...</p>
 
+      <!-- ADMIN CONSOLE -->
       <div id="adminBody" class="hidden">
-        <p class="lead">Only admins can see this page. Everything here is protected by database security rules, not just by hiding the page.</p>
+        <h1>ADMIN <span>CONSOLE</span></h1>
+        <nav class="admin-tabs" role="tablist" aria-label="Admin sections">
+          <button type="button" role="tab" id="tabClaims" aria-selected="true">Claims</button>
+          <button type="button" role="tab" id="tabFunds" aria-selected="false">Sponsor budget</button>
+          <button type="button" role="tab" id="tabPlayers" aria-selected="false">Players</button>
+        </nav>
+
+        <!-- CLAIMS -->
+        <section class="panel panel--wide" id="paneClaims">
+          <h2>TIER REWARD CLAIMS</h2>
+          <div class="field" style="max-width:260px">
+            <label for="claimFilter">Show</label>
+            <select id="claimFilter">
+              <option value="pending">pending</option>
+              <option value="approved">approved (to pay)</option>
+              <option value="paid">paid</option>
+              <option value="rejected">rejected</option>
+              <option value="all">all</option>
+            </select>
+          </div>
+          <p class="msg" id="claimMsg" role="status"></p>
+          <div class="tablewrap">
+            <table class="data" aria-label="Tier claims">
+              <thead><tr><th>Player</th><th>BGMI ID</th><th>Code</th><th>Tier</th><th>Points</th><th>Season</th><th>Sent</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="claimRows"></tbody>
+            </table>
+          </div>
+          <div class="checklist">
+            <p class="stepbox__title">BEFORE YOU APPROVE, CHECK ALL OF THESE</p>
+            <ul>
+              <li>The BGMI character ID in the screenshot matches the BGMI ID in this table.</li>
+              <li>The one-time code in the "Code" column is visible inside the screenshot (written in the player's own profile).</li>
+              <li>The tier, points and season match what the player claimed.</li>
+              <li>The image looks untouched (no edited text, no crop that hides the ID, not a screenshot of someone else's screen).</li>
+              <li>For high-value tiers, ask for a short screen recording that opens BGMI, shows the profile and the code, before you approve.</li>
+            </ul>
+            <p class="who">Pay approved claims from the sponsor fund, then mark them paid with a payout note (for example a UPI reference or UC code ID). Do not put full gift codes or phone numbers in the note.</p>
+          </div>
+        </section>
 
         <!-- SPONSOR BUDGET -->
-        <section class="panel panel--wide">
+        <section class="panel panel--wide hidden" id="paneFunds">
           <h2>SPONSOR BUDGET</h2>
           <div class="stats" id="stats"></div>
 
@@ -77,31 +143,8 @@
           <p class="who" style="margin-top:12px">Flow for each entry: promised, then received, then allocated to a prize pool, then paid out. Keep sponsor money in a separate bank account.</p>
         </section>
 
-        <!-- TIER CLAIMS -->
-        <section class="panel panel--wide section-gap">
-          <h2>TIER REWARD CLAIMS</h2>
-          <div class="field" style="max-width:260px">
-            <label for="claimFilter">Show</label>
-            <select id="claimFilter">
-              <option value="pending">pending</option>
-              <option value="approved">approved (to pay)</option>
-              <option value="paid">paid</option>
-              <option value="rejected">rejected</option>
-              <option value="all">all</option>
-            </select>
-          </div>
-          <p class="msg" id="claimMsg" role="status"></p>
-          <div class="tablewrap">
-            <table class="data" aria-label="Tier claims">
-              <thead><tr><th>Player</th><th>BGMI ID</th><th>Tier</th><th>Points</th><th>Season</th><th>Sent</th><th>Status</th><th>Actions</th></tr></thead>
-              <tbody id="claimRows"></tbody>
-            </table>
-          </div>
-          <p class="who" style="margin-top:12px">Check that the BGMI ID in the screenshot matches the player's ID, the tier and season are right, and the image is not edited. Pay approved claims from the sponsor fund, then mark them paid with a payout note (for example a UPI reference or UC code ID). Do not put full codes or phone numbers in the note.</p>
-        </section>
-
         <!-- PLAYERS -->
-        <section class="panel panel--wide section-gap">
+        <section class="panel panel--wide hidden" id="panePlayers">
           <h2>PLAYERS <span class="badge" id="playerCount">0</span></h2>
           <div class="tablewrap">
             <table class="data" aria-label="Players">

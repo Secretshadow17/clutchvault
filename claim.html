@@ -34,14 +34,26 @@
   <main class="page">
     <div class="wrap">
       <h1>CLAIM A <span>TIER REWARD</span></h1>
-      <p class="lead">Reached a reward tier in BGMI? Upload a clear screenshot of your profile showing your character ID, tier and points. An admin checks every claim. Free, no entry fee.</p>
+      <p class="lead">Reached a reward tier in BGMI? Prove it is YOUR account: get a one-time code, write it in your BGMI profile, and upload a screenshot that shows your character ID, tier, points and the code. An admin checks every claim. Free, no entry fee.</p>
 
       <p class="msg" id="gateMsg" role="status">Checking your account...</p>
 
       <div id="claimBody" class="hidden">
         <section class="panel">
           <h2>NEW CLAIM <span class="badge" id="seasonBadge"></span></h2>
+
+          <div class="stepbox">
+            <p class="stepbox__title">STEP 1: GET YOUR CODE</p>
+            <p class="stepbox__text">Press the button, then write the code in your BGMI profile (for example in the Signature) before taking the screenshot. The code works for 30 minutes and only once.</p>
+            <button class="btn btn--ghost" type="button" id="getCode">Get my verification code</button>
+            <div class="codebox hidden" id="codeBox" aria-live="polite">
+              <span class="codebox__code" id="codeText"></span>
+              <span class="codebox__time" id="codeTime"></span>
+            </div>
+          </div>
+
           <form id="claimForm" novalidate>
+            <p class="stepbox__title">STEP 2: SEND THE SCREENSHOT</p>
             <div class="field">
               <label for="tier">Tier reached</label>
               <select id="tier"></select>
@@ -53,7 +65,7 @@
             <div class="field">
               <label for="proof">Screenshot proof</label>
               <input id="proof" type="file" accept="image/png,image/jpeg,image/webp" />
-              <small>PNG, JPG or WebP, up to 3 MB. Your BGMI character ID and tier must be clearly visible. Edited or fake screenshots mean a permanent ban.</small>
+              <small>PNG, JPG or WebP, up to 3 MB. Your BGMI character ID, tier, points and the code must be clearly visible. Edited, borrowed or fake screenshots mean a permanent ban. For high tiers an admin may ask for a short screen recording.</small>
             </div>
             <p class="msg" id="claimMsg" role="status"></p>
             <button class="btn btn--accent" type="submit" id="claimBtn">Submit claim</button>

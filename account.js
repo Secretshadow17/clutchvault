@@ -123,7 +123,6 @@
     $("bgmiId").value = data.bgmi_id || "";
     $("roleBadge").textContent = data.role;
     $("roleBadge").classList.toggle("badge--admin", data.role === "admin");
-    $("adminLink").classList.toggle("hidden", data.role !== "admin");
     say($("profileMsg"), "");
   }
 
